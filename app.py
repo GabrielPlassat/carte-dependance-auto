@@ -47,7 +47,8 @@ INDIC = {
     "Actifs captifs (% des actifs)": ("part_captifs", 100, " %"),
     "Ménages pauvres (%)": ("taux_pauvrete", 100, " %"),
     "Surcoût carburant de crise par captif (€/an)": ("surcout_moyen_par_captif", 1, " €"),
-    "Distance moyenne des captifs (km)": ("km_route_moyen_captifs", 1, " km"),
+    "Distance d'un trajet des captifs (km, aller simple)": ("km_route_moyen_captifs", 1, " km"),
+    "Navetteurs longue distance (> 80 km)": ("navetteurs_longue_distance", 1, ""),
     "Score moyen d'alternative (0–3, inversé)": ("score_alt_moyen", 1, ""),
 }
 
@@ -140,7 +141,7 @@ with g:
         "Captifs": t["captifs"].round(0),
         "dont empl./ouvr.": t["captifs_modestes"].round(0),
         "% ménages pauvres": (t["taux_pauvrete"] * 100).round(1),
-        "km moyens": t["km_route_moyen_captifs"].round(0),
+        "km / trajet (aller)": t["km_route_moyen_captifs"].round(0),
         "Indice": t["indice_priorite"],
     }), hide_index=True, width="stretch")
 
@@ -160,11 +161,12 @@ with dr:
         st.dataframe(pd.DataFrame({
             "Lieu de travail": fc["dest_nom"].fillna(fc["dest"]),
             "Automobilistes": fc["actifs_voiture"].round(0),
-            "km": fc["km_route"].round(0),
+            "km (aller)": fc["km_route"].round(0),
             "Cars/trains matin": fc["tc_departs_matin"].astype(int),
             "Score (0–3)": fc["score_alternative"],
             "Meilleure alternative": fc["alternative_principale"].map(lib),
-            "Captif": fc["captif"].map({True: "oui", False: "non"}),
+            "Captif": [("longue distance" if ld else ("oui" if c else "non")) for c, ld in
+                       zip(fc["captif"], fc.get("longue_distance", pd.Series(False, index=fc.index)))],
         }).head(25), hide_index=True, width="stretch")
 
 # ---------------------------------------------------------------- méthode
@@ -181,7 +183,7 @@ Réseaux de transport utilisés : {len(meta.get("gtfs", []))} fichiers GTFS ; co
 - *Vélo / VAE / véli* : 3 si ≤ {p.get("velo_km_3", 3)} km, 2 si ≤ {p.get("velo_km_2", 8)} km, 1 si ≤ {p.get("velo_km_1", 20)} km.
 - *Covoiturage* : 2 si ≥ {p.get("covoit_2", 60)} trajets/mois observés dans le registre, 1 si ≥ {p.get("covoit_1", 10)}.
 
-Un automobiliste est **captif** si ce score vaut 0 ou 1. **Employés ou ouvriers** : catégorie socioprofessionnelle
+Un automobiliste est **captif** si ce score vaut 0 ou 1 et que son trajet fait au plus {p.get("km_max_quotidien", 80)} km. Au-delà, c'est un **navetteur longue distance** (lieu de travail déclaré lointain : télétravail, logement sur place la semaine…), compté à part et exclu des captifs et du surcoût. Les distances sont des **km par trajet, aller simple**. **Employés ou ouvriers** : catégorie socioprofessionnelle
 du recensement (CS 5 et 6), utilisée comme indicateur de revenus modestes.
 **Indice de priorité** = 50 % rang du taux de captifs employés/ouvriers + 30 % rang du taux de pauvreté + 20 % rang de la distance des captifs.
 **Surcoût de crise** = km × 2 × {p.get("jours_travailles", 220)} jours × {p.get("conso_l_100", 6.5)} L/100 × ({p.get("prix_crise", 2.37)} − {p.get("prix_reference", 1.7)} €/L).
