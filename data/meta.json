@@ -1,0 +1,45 @@
+{
+ "departement": "24",
+ "nom": "Dordogne",
+ "genere_le": "2026-10-29T09:05",
+ "params": {
+  "detour_route": 1.3,
+  "vitesse_voiture_kmh": 55,
+  "penalite_acces_tc_min": 10,
+  "fenetre_matin": [
+   "06:00",
+   "09:30"
+  ],
+  "fenetre_soir": [
+   "16:00",
+   "20:00"
+  ],
+  "velo_km_3": 3,
+  "velo_km_2": 8,
+  "velo_km_1": 20,
+  "covoit_2": 60,
+  "covoit_1": 10,
+  "jours_travailles": 220,
+  "conso_l_100": 6.5,
+  "prix_crise": 2.37,
+  "prix_reference": 1.7,
+  "score_captif_max": 1
+ },
+ "gtfs": [
+  "Réseau SNCF TGV, Intercités et TER",
+  "Agrégat des réseaux urbains et interurbains de Nouvelle Aquitaine",
+  "Réseau interurbain BreizhGo TER",
+  "Réseau interurbain - Dordogne (24)",
+  "Réseau urbain Péribus",
+  "Réseau urbain TUB",
+  "Réseau urbain Sarlat Bus"
+ ],
+ "mois_covoiturage": 2,
+ "sources": [
+  "Insee MOBPRO 2022 (fichier détail)",
+  "Insee Filosofi 2021 carroyé 200 m",
+  "transport.data.gouv.fr (GTFS)",
+  "Registre de preuve de covoiturage",
+  "geo.api.gouv.fr"
+ ]
+}
