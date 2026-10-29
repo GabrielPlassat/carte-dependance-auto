@@ -23,7 +23,8 @@
   "conso_l_100": 6.5,
   "prix_crise": 2.37,
   "prix_reference": 1.7,
-  "score_captif_max": 1
+  "score_captif_max": 1,
+  "km_max_quotidien": 80
  },
  "gtfs": [
   "Réseau SNCF TGV, Intercités et TER",
