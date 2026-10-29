@@ -9,5 +9,6 @@ st.set_page_config(page_title="Dépendance automobile contrainte", page_icon="�
 pg = st.navigation([
     st.Page("carte.py", title="Carte", icon="🗺️", default=True),
     st.Page("methode.py", title="Comprendre les chiffres", icon="📖"),
+    st.Page("sources.py", title="Données sources", icon="🗂️"),
 ])
 pg.run()

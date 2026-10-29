@@ -79,8 +79,7 @@ st.markdown(f"""
 
 Réseaux de transport pris en compte : {len(meta.get("gtfs", []))} fichiers GTFS.
 """)
-with st.expander("Voir la liste des réseaux de transport utilisés"):
-    st.write(meta.get("gtfs", []))
+st.page_link("sources.py", label="Détail de chaque source et de son usage : page « Données sources »", icon="🗂️")
 
 # ----------------------------------------------------------------------
 st.header("2. Qui est compté")

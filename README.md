@@ -29,6 +29,7 @@ Pour un autre département : relancez le notebook avec un autre `DEP` et remplac
 | `app.py` | point d'entrée de l'app Streamlit (menu des pages) |
 | `carte.py` | page « Carte » : carte, chiffres clés, communes prioritaires |
 | `methode.py` | page « Comprendre les chiffres » : méthode détaillée avec exemples calculés |
+| `sources.py` | page « Données sources » : provenance et usage de chaque jeu de données |
 | `donnees.py` | chargement des données, partagé par les pages |
 | `requirements.txt` | bibliothèques de l'app |
 | `data/` | résultats du notebook (4 fichiers à déposer) |
