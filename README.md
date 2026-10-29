@@ -26,7 +26,10 @@ Pour un autre département : relancez le notebook avec un autre `DEP` et remplac
 | Fichier | Rôle |
 |---|---|
 | `notebook/carte_dependance_auto.ipynb` | calcul complet, à exécuter dans Colab |
-| `app.py` | app Streamlit qui affiche les résultats |
+| `app.py` | point d'entrée de l'app Streamlit (menu des pages) |
+| `carte.py` | page « Carte » : carte, chiffres clés, communes prioritaires |
+| `methode.py` | page « Comprendre les chiffres » : méthode détaillée avec exemples calculés |
+| `donnees.py` | chargement des données, partagé par les pages |
 | `requirements.txt` | bibliothèques de l'app |
 | `data/` | résultats du notebook (4 fichiers à déposer) |
 
