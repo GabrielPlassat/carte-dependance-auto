@@ -1,7 +1,7 @@
 {
  "departement": "24",
  "nom": "Dordogne",
- "genere_le": "2026-10-29T09:05",
+ "genere_le": "2026-11-26T11:12",
  "params": {
   "detour_route": 1.3,
   "vitesse_voiture_kmh": 55,
@@ -26,6 +26,50 @@
   "score_captif_max": 1,
   "km_max_quotidien": 80
  },
+ "complements": {
+  "ref_emc2": {
+   "dense": {
+    "libelle": "Grand centre urbain",
+    "km_jour": 12.2,
+    "part_voiture_km": 0.66
+   },
+   "intermediaire": {
+    "libelle": "Urbain intermédiaire",
+    "km_jour": 18.1,
+    "part_voiture_km": 0.8
+   },
+   "rural": {
+    "libelle": "Rural (périurbain)",
+    "km_jour": 27.6,
+    "part_voiture_km": 0.85
+   }
+  },
+  "densite_vers_emc2": {
+   "1": "dense",
+   "2": "intermediaire",
+   "3": "intermediaire",
+   "4": "intermediaire",
+   "5": "rural",
+   "6": "rural",
+   "7": "rural"
+  },
+  "params": {
+   "part_km_travail": 0.42,
+   "part_11_ans_et_plus": 0.88,
+   "jours_semaine_an": 250,
+   "occupation_voiture": 1.4
+  },
+  "densite_approchee": false,
+  "annee_motorisation": 2023,
+  "annee_acces": 2025,
+  "services": [
+   "Supermarché",
+   "Boulangerie",
+   "Médecin généraliste",
+   "Pharmacie",
+   "Bureau de poste"
+  ]
+ },
  "gtfs": [
   "Réseau SNCF TGV, Intercités et TER",
   "Agrégat des réseaux urbains et interurbains de Nouvelle Aquitaine",
@@ -41,6 +85,10 @@
   "Insee Filosofi 2021 carroyé 200 m",
   "transport.data.gouv.fr (GTFS)",
   "Registre de preuve de covoiturage",
-  "geo.api.gouv.fr"
+  "geo.api.gouv.fr",
+  "Insee, grille communale de densité 2026",
+  "Insee, recensement 2023 : voitures des ménages (via data.gouv.fr)",
+  "Insee, accès aux équipements 2025",
+  "Cerema, synthèse EMC² 2021-2023 (nov. 2025) ; SDES, EMP 2019"
  ]
 }
