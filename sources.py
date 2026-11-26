@@ -175,6 +175,69 @@ fiche(
 )
 
 # ----------------------------------------------------------------------
+cm = meta.get("complements", {})
+if cm and "classe_emc2" in com:
+    st.header("Sources complémentaires : au-delà du domicile-travail")
+    st.caption("Utilisées par la section 8 bis du notebook. Elles n'entrent ni dans les captifs ni dans l'indice de priorité.")
+    fiche(
+        "6. Grille communale de densité",
+        "https://www.insee.fr/fr/information/8571524",
+        "Insee", "Licence Ouverte Etalab",
+        "fichier de diffusion Excel de l'année la plus récente disponible"
+        + (" — **non lu lors de ce calcul : classe approchée par la densité de population**" if cm.get("densite_approchee") else ""),
+        [["code commune", "code officiel de la commune", "jointure"],
+         ["degré de densité (1 à 7)", "des grands centres urbains au rural à habitat très dispersé",
+          "type de territoire, puis valeur de référence EMC²"]],
+        "- Les 7 niveaux sont regroupés en 3 types : 1 = dense ; 2 à 4 = intermédiaire ; 5 à 7 = rural "
+        "(correspondance modifiable dans le notebook).",
+        "le type de territoire de chaque commune et le choix de la valeur de référence EMC².",
+        "la grille décrit la répartition de la population, pas l'offre de transport.",
+    )
+    fiche(
+        "7. Voitures à disposition des ménages",
+        "https://www.data.gouv.fr/datasets/part-des-menages-selon-le-nombre-de-voiture-a-disposition",
+        "Insee, recensement de la population ; mis en forme par le Tableau de bord des mobilités durables",
+        "Licence Ouverte Etalab",
+        f"fichier communal CSV, millésime {cm.get('annee_motorisation') or 'n.d.'}",
+        [["geocode_commune", "code commune", "jointure"],
+         ["nb_voitures", "aucune / 1 / 2 ou plus", "catégorie de ménage"],
+         ["numerateur, denominateur", "ménages concernés, ensemble des ménages", "parts de ménages"]],
+        "- On garde le millésime le plus récent et on calcule la part des ménages sans voiture et avec 2 voitures ou plus.",
+        "l'indicateur « Ménages sans voiture ».",
+        "comme pour MOBPRO, ce sont des estimations du recensement, moins précises dans les très petites communes.",
+    )
+    fiche(
+        "8. Temps d'accès aux équipements",
+        "https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements",
+        "Insee, à partir de la Base permanente des équipements et d'un calcul d'itinéraires routiers (Metric-OSRM)",
+        "Licence Ouverte Etalab",
+        f"fichier Parquet régional, millésime {cm.get('annee_acces') or 'n.d.'}",
+        [["typeeq_id", "type d'équipement", "choix du panier de services"],
+         ["duree, distance", "temps et km en voiture vers l'équipement le plus proche", "temps d'accès"],
+         ["pop, depcom", "population du carreau, commune", "moyenne pondérée par commune"]],
+        "- Pour chaque service du panier (" + ", ".join(cm.get("services", [])) + "), moyenne par commune du temps "
+        "en voiture, pondérée par la population des carreaux ; puis moyenne des services.",
+        "l'indicateur « Temps d'accès en voiture aux services ».",
+        "il s'agit de l'équipement **le plus proche**, pas de celui réellement fréquenté. Les codes d'équipement "
+        "changent parfois d'un millésime à l'autre : un service absent est signalé dans le notebook.",
+    )
+    fiche(
+        "9. Enquêtes mobilité certifiées Cerema (EMC²)",
+        "https://emc2.cerema.fr/",
+        "Cerema, avec les collectivités qui réalisent les enquêtes",
+        "publication Cerema ; exploitations standard des enquêtes en Licence Ouverte sur data.gouv.fr",
+        "valeurs de référence de la synthèse « Mobilités du quotidien : tendances et enseignements » (novembre 2025), "
+        "issues de 10 EMC² 2021-2023 ; part du travail dans les distances : SDES, enquête mobilité des personnes 2019",
+        [["km par personne et par jour", "par type de territoire", "volume de déplacements"],
+         ["part de la voiture dans les km", "par type de territoire", "km faits en voiture"],
+         ["part des km liés au travail", "42 % en semaine (EMP 2019)", "séparer le hors travail"]],
+        "- Les valeurs sont recopiées dans la cellule Paramètres du notebook (`REF_EMC2`) et peuvent être remplacées, "
+        "par exemple par celles de l'atlas EMC² ou d'une enquête locale.",
+        "les indicateurs « km en voiture tous motifs » et « Surcoût carburant hors travail par ménage ».",
+        "valeurs moyennes d'agglomérations et de leur périphérie : le rural éloigné des villes n'y est pas représenté. "
+        "Un notebook à part (`notebook/controle_emc2.ipynb`) compare MOBPRO et une EMC² sur un territoire enquêté.",
+    )
+
 st.header("Fichiers produits par le notebook")
 st.markdown("""
 Le notebook Colab produit quatre fichiers, déposés dans le dossier `data/` du dépôt. Ils sont ouverts et réutilisables

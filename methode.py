@@ -301,7 +301,63 @@ st.markdown("""
 """)
 
 # ----------------------------------------------------------------------
-st.header("13. Ce que ces chiffres ne disent pas")
+st.header("13. Au-delà du domicile-travail")
+cm = meta.get("complements", {})
+if not cm or "classe_emc2" not in com:
+    st.info("Ces indicateurs n'ont pas été calculés pour ce département : relancez le notebook avec "
+            "`COMPLEMENTS = True` (section 8 bis).")
+else:
+    ref, pt = cm.get("ref_emc2", {}), cm.get("params", {})
+    PKT, P11 = pt.get("part_km_travail", 0.42), pt.get("part_11_ans_et_plus", 0.88)
+    JS, OCC = pt.get("jours_semaine_an", 250), pt.get("occupation_voiture", 1.4)
+    st.markdown(f"""
+Le trajet vers le travail ne représente qu'une partie des kilomètres faits en voiture : il y a aussi les courses,
+les rendez-vous médicaux, l'accompagnement des enfants… Quatre indicateurs complémentaires sont calculés par commune.
+**Ils ne modifient ni le nombre de captifs ni l'indice de priorité.**
+
+**a. Le type de territoire.** Chaque commune reçoit son niveau dans la grille communale de densité de l'Insee
+(7 niveaux, des grands centres urbains au rural à habitat très dispersé)
+{"— ici **approché** par la densité de population, le fichier Insee n'ayant pas pu être lu" if cm.get("densite_approchee") else ""}.
+Ces 7 niveaux sont regroupés en trois types, ceux des enquêtes mobilité du Cerema.
+
+**b. Les ménages sans voiture** (recensement {cm.get("annee_motorisation") or "n.d."}) : part des ménages qui n'ont
+aucune voiture. Dans une commune où presque tout se fait en voiture, ces ménages sont les plus exposés à
+l'isolement ; ils ne paient pas de carburant mais dépendent des autres pour se déplacer.
+
+**c. Le temps d'accès aux services du quotidien** (Insee, accès aux équipements {cm.get("annee_acces") or "n.d."}) :
+temps de trajet en voiture, par la route, du lieu d'habitation au plus proche
+{", ".join(s.lower() for s in cm.get("services", [])) or "service"}. L'Insee le calcule pour chaque carreau habité ;
+on fait la moyenne par commune en pondérant par la population, puis la moyenne des services.
+
+**d. Les km en voiture tous motifs et le surcoût hors travail.** Les enquêtes mobilité certifiées Cerema (EMC²)
+mesurent tous les déplacements d'un jour de semaine, quel que soit le motif. Aucune EMC² ne couvre chaque commune ;
+on utilise donc des **valeurs de référence par type de territoire**, tirées de 10 EMC² récentes (2021-2023) :
+""")
+    st.table(pd.DataFrame([{"Type de territoire": v.get("libelle", k), "km par personne et par jour": nb(v["km_jour"], 1),
+                            "dont en voiture": f"{v['part_voiture_km'] * 100:.0f} %",
+                            "km en voiture par jour": nb(v["km_jour"] * v["part_voiture_km"], 1),
+                            "Communes du département": int((com["classe_emc2"] == k).sum())}
+                           for k, v in ref.items()]))
+    ex_ht = com.loc[com["code"] == code_ex, "surcout_hors_travail_menage"]
+    st.markdown(f"""
+Le surcoût de crise **hors travail** d'un ménage =
+km en voiture par jour × (1 − {PKT * 100:.0f} %, la part des distances liées au travail en semaine)
+× personnes du ménage × {P11 * 100:.0f} % (habitants de 11 ans et plus) × {JS} jours de semaine ÷ {OCC} personnes par voiture
+× {CONSO} L/100 km × ({PRIX_C} − {PRIX_R} €/L).
+
+{f"Exemple — {nom_ex} : **{nb(ex_ht.iloc[0])} € par ménage et par an**." if len(ex_ht) and pd.notna(ex_ht.iloc[0]) else ""}
+
+**Limites, à garder en tête :**
+- la valeur est la même pour toutes les communes d'un même type ; seule la taille des ménages la fait varier ;
+- les EMC² portent surtout sur des agglomérations et leur périphérie : la valeur « rural » vient du **rural
+  périurbain**. Dans le rural éloigné des villes, les distances sont probablement plus longues ;
+- les week-ends ne sont pas comptés : l'estimation est basse ;
+- ce surcoût concerne **tous les ménages** qui roulent, pas seulement ceux qui n'ont pas d'alternative.
+  C'est une mesure d'exposition, pas de contrainte. Le temps d'accès aux services (indicateur c) dit où cette
+  exposition est la moins évitable.
+""")
+
+st.header("14. Ce que ces chiffres ne disent pas")
 st.markdown("""
 - **Ce sont des ordres de grandeur.** Ils servent à comparer les communes et à chiffrer un enjeu, pas à dire
   « telle personne est captive ».
