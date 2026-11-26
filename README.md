@@ -21,11 +21,34 @@ Si un réseau de transport manque, copiez son lien GTFS depuis transport.data.go
 
 Pour un autre département : relancez le notebook avec un autre `DEP` et remplacez les 4 fichiers de `data/`.
 
+## Au-delà du domicile-travail (section 8 bis du notebook)
+
+Quatre indicateurs complémentaires par commune, affichés à part (ils ne changent ni les captifs ni l'indice) :
+
+| Indicateur | Source |
+|---|---|
+| Type de territoire (7 niveaux de densité) | Insee, grille communale de densité |
+| Part des ménages sans voiture / avec 2 voitures ou plus | Insee, recensement (via data.gouv.fr) |
+| Temps d'accès en voiture aux services du quotidien (supermarché, boulangerie, médecin, pharmacie, poste) | Insee, localisation et accès aux équipements |
+| km en voiture par habitant et par jour tous motifs, et surcoût carburant de crise **hors travail** par ménage | valeurs de référence des enquêtes mobilité EMC² du Cerema, selon le type de territoire |
+
+La section se désactive avec `COMPLEMENTS = False` ; le temps d'accès (fichier régional de 0,5 à 2 Go) avec
+`ACCES_SERVICES = False`. Les valeurs EMC² et les hypothèses sont dans la cellule Paramètres.
+
+## Contrôle de cohérence avec une enquête EMC²
+
+[![Ouvrir dans Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/GabrielPlassat/carte-dependance-auto/blob/main/notebook/controle_emc2.ipynb)
+
+`notebook/controle_emc2.ipynb` télécharge l'exploitation standard d'une EMC² publiée sur data.gouv.fr (Grand Angoulême
+2023 par défaut), retrouve les communes de chaque zone et compare la part de la voiture pour aller travailler selon
+le recensement et selon l'enquête. Une étape est manuelle : recopier les parts EMC² lues dans le tableau affiché.
+
 ## Contenu du dépôt
 
 | Fichier | Rôle |
 |---|---|
 | `notebook/carte_dependance_auto.ipynb` | calcul complet, à exécuter dans Colab |
+| `notebook/controle_emc2.ipynb` | comparaison recensement / enquête EMC² sur un territoire enquêté |
 | `app.py` | point d'entrée de l'app Streamlit (menu des pages) |
 | `carte.py` | page « Carte » : carte, chiffres clés, communes prioritaires |
 | `methode.py` | page « Comprendre les chiffres » : méthode détaillée avec exemples calculés |
@@ -52,6 +75,8 @@ Le score d'un trajet est le meilleur des trois. **Captif** = score 0 ou 1.
 - transport.data.gouv.fr — horaires GTFS des réseaux
 - Registre de preuve de covoiturage (data.gouv.fr)
 - geo.api.gouv.fr — communes
+- Insee — grille communale de densité ; voitures des ménages (recensement) ; accès aux équipements
+- Cerema — synthèse des EMC² 2021-2023 (« Mobilités du quotidien », nov. 2025) ; SDES — EMP 2019
 
 ## Limites du prototype
 
@@ -59,3 +84,5 @@ Le score d'un trajet est le meilleur des trois. **Captif** = score 0 ou 1.
 - Vélo évalué sur la distance seule ; prochaine étape : sécurité de l'itinéraire avec la Base nationale des aménagements cyclables.
 - Le covoiturage observé ne couvre que les plateformes connectées au registre.
 - Recensement 2022 et revenus 2021 : l'indicateur décrit une structure territoriale, pas des situations individuelles.
+- Indicateurs hors travail : la référence EMC² est une moyenne par type de territoire, issue surtout d'agglomérations
+  et de leur périphérie ; le rural éloigné des villes y est mal représenté, et les week-ends ne sont pas comptés.

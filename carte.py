@@ -20,6 +20,14 @@ INDIC = {
     "Navetteurs longue distance (> 80 km)": ("navetteurs_longue_distance", 1, ""),
     "Score moyen d'alternative (0–3, inversé)": ("score_alt_moyen", 1, ""),
 }
+# indicateurs « au-delà du domicile-travail » (section 8 bis du notebook), affichés s'ils ont été calculés
+INDIC_PLUS = {
+    "Ménages sans voiture (%)": ("part_menages_sans_voiture", 100, " %"),
+    "Temps d'accès en voiture aux services (min)": ("acces_services_min", 1, " min"),
+    "Surcoût carburant hors travail par ménage (€/an, réf. EMC²)": ("surcout_hors_travail_menage", 1, " €"),
+    "km en voiture par habitant et par jour, tous motifs (réf. EMC²)": ("km_voiture_jour_hab", 1, " km"),
+}
+INDIC.update({k: v for k, v in INDIC_PLUS.items() if v[0] in com and com[v[0]].notna().any()})
 
 # ---------------------------------------------------------------- barre latérale
 with st.sidebar:
@@ -79,6 +87,11 @@ d["valeur_txt"] = d["valeur"].map(lambda v: "n.d." if pd.isna(v) else f"{v:,.1f}
 for c, m in [("part_captifs", 100), ("part_captifs_modestes", 100), ("taux_pauvrete", 100)]:
     d[c + "_txt"] = (d[c] * m).map(lambda v: "n.d." if pd.isna(v) else f"{v:.1f} %")
 d["actifs_txt"] = d["actifs"].map(lambda v: "n.d." if pd.isna(v) else f"{v:,.0f}".replace(",", " "))
+d["densite_txt"] = d["libelle_densite"].fillna("n.d.") if "libelle_densite" in d else "n.d."
+d["sans_voiture_txt"] = ((d["part_menages_sans_voiture"] * 100).map(lambda v: "n.d." if pd.isna(v) else f"{v:.0f} %")
+                         if "part_menages_sans_voiture" in d else "n.d.")
+d["acces_txt"] = (d["acces_services_min"].map(lambda v: "n.d." if pd.isna(v) else f"{v:.0f} min")
+                  if "acces_services_min" in d else "n.d.")
 poly = shapes.merge(d, on="code", how="left")
 
 layers = [pdk.Layer("PolygonLayer", poly, get_polygon="contour", get_fill_color="fill",
@@ -97,7 +110,9 @@ st.pydeck_chart(pdk.Deck(
     tooltip={"html": "<b>{nom}</b><br/>" + choix + " : <b>{valeur_txt}</b><br/>"
                      "Actifs : {actifs_txt}<br/>Captifs : {part_captifs_txt}<br/>"
                      "Captifs employés/ouvriers : {part_captifs_modestes_txt}<br/>"
-                     "Ménages pauvres : {taux_pauvrete_txt}",
+                     "Ménages pauvres : {taux_pauvrete_txt}"
+                     + ("<br/>Territoire : {densite_txt}<br/>Ménages sans voiture : {sans_voiture_txt}"
+                        "<br/>Accès aux services : {acces_txt}" if "libelle_densite" in com else ""),
              "style": {"fontSize": "13px"}}), height=560)
 st.caption(f"Couleur : du clair (faible) au rouge foncé (élevé). Communes de moins de {min_actifs} actifs en gris.")
 
@@ -128,6 +143,18 @@ with dr:
         v, cpt = fc["actifs_voiture"].sum(), fc.loc[fc["captif"], "actifs_voiture"].sum()
         st.markdown(f"**{cpt/v:.0%}** de ses {v:,.0f} automobilistes n'ont pas d'alternative crédible."
                     .replace(",", " "))
+        r0 = com[com["code"] == code].iloc[0]
+        ctx = []
+        if pd.notna(r0.get("libelle_densite")):
+            ctx.append(f"territoire : {str(r0['libelle_densite']).lower()}")
+        if pd.notna(r0.get("part_menages_sans_voiture")):
+            ctx.append(f"{r0['part_menages_sans_voiture'] * 100:.0f} % de ménages sans voiture")
+        if pd.notna(r0.get("acces_services_min")):
+            ctx.append(f"{r0['acces_services_min']:.0f} min en voiture en moyenne pour les services du quotidien")
+        if pd.notna(r0.get("surcout_hors_travail_menage")):
+            ctx.append(f"surcoût hors travail estimé à {r0['surcout_hors_travail_menage']:.0f} € par ménage et par an")
+        if ctx:
+            st.caption("Au-delà du travail : " + " · ".join(ctx) + ".")
         lib = {"tc": "car / train", "velo": "vélo / VAE / véli", "covoit": "covoiturage", "aucune": "aucune"}
         st.dataframe(pd.DataFrame({
             "Lieu de travail": fc["dest_nom"].fillna(fc["dest"]),
